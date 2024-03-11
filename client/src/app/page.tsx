@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Orbitron, Raleway } from "next/font/google";
+import Markdown from "react-markdown";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -97,6 +98,26 @@ const data: CarouselProp[] = [
     model:
       "https://api.echo3d.com/webar?key=fragrant-voice-1401&entry=6c02f453-1274-4077-ae6f-905b71d3157e",
   },
+  {
+    title: "IR Sensor",
+    description:
+      "The infrared (IR) sensor acts like a tiny heat detective, invisible to the human eye. It emits infrared light that bounces back when it hits an object. By detecting this change in reflected light, the IR sensor becomes a versatile tool for detecting motion, measuring heat, or even tracking the position of an object. It's like having a tiny heat detective in your project!",
+    faq: [
+      {
+        question: "How does an IR sensor work?",
+        answer:
+          "The IR sensor emits infrared light that bounces back when it hits an object. By detecting this change in reflected light, the IR sensor becomes a versatile tool for detecting motion, measuring heat, or even tracking the position of an object.",
+      },
+      {
+        question:
+          "What is the difference between an IR sensor and a PIR sensor?",
+        answer:
+          "An IR sensor emits infrared light that bounces back when it hits an object. By detecting this change in reflected light, the IR sensor becomes a versatile tool for detecting motion, measuring heat, or even tracking the position of an object. A PIR sensor uses infrared light to detect motion.",
+      },
+    ],
+    model:
+      "https://api.echo3d.com/webar?key=fragrant-voice-1401&entry=ad6af997-94d8-42b8-b1fc-eca16822b874",
+  },
 ];
 
 const CarouselItem = ({ title, description, faq, model }: CarouselProp) => {
@@ -158,6 +179,9 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [chatButton, setChatButton] = useState("Chat");
+  const [chat, setChat] = useState<{ message: string; user: boolean }[]>([
+    { message: "Hello", user: true },
+  ]);
   useEffect(() => {
     if (screen === "loggedOut") {
       setUsername("");
@@ -176,7 +200,13 @@ export default function Home() {
     <main className="p-0 lg:p-4">
       <div className="navbar bg-base-300 shadow-slate-500 shadow-lg w-full rounded-full">
         <div className="flex-1 p-4">
-          <Image src={"/Logo.svg"} alt="logo" width={160} height={160} />
+          <Image
+            src={"/Logo.svg"}
+            alt="logo"
+            width={160}
+            height={160}
+            priority
+          />
         </div>
         <div className="flex-none">
           <ul className="menu menu-horizontal px-1">
@@ -188,11 +218,6 @@ export default function Home() {
                     <li>
                       <button onClick={() => setScreen("ar")}>
                         Augmented Reality
-                      </button>
-                    </li>
-                    <li>
-                      <button onClick={() => setScreen("community")}>
-                        Community
                       </button>
                     </li>
                     <li>
@@ -266,38 +291,84 @@ export default function Home() {
             </div>
           </div>
         )}
-        {screen === "community" && (
-          <div className="h-screen p-2 lg:p-4">
-            <h1 className="text-center text-2xl lg:text-6xl">Community</h1>
-            <div></div>
-          </div>
-        )}
         {screen === "wolf" && (
           <div className="h-screen p-2 lg:p-4">
             <h1 className="text-center text-2xl lg:text-6xl">WolframAlpha</h1>
             <div></div>
           </div>
         )}
-        {screen === "chatbot" && (
-          <div className="grid place-items-center h-screen">
-            <div>
-              <h1 className="text-6xl text-center">ChatBot</h1>
-            </div>
-          </div>
-        )}
         {screen !== "loggedOut" && (
-          <button
-            className={
-              orbitron.className +
-              " sticky border p-4 bottom-0 right-0 rounded-full "
-            }
-            onClick={(e) => {
-              setChatButton(chatButton == "Chat" ? "Close" : "Chat");
-              setScreen(screen == "ar" ? "chatbot" : "ar");
-            }}
-          >
-            {chatButton}
-          </button>
+          <div>
+            <button
+              className={
+                " sticky border border-slate-800 p-4 bottom-0 right-0 rounded-2xl bg-slate-700/10 backdrop-blur-lg opacity-20 hover:opacity-100 hover:shadow-2xl hover:shadow-slate-700 duration-500"
+              }
+              onClick={() => {
+                // @ts-ignore
+                document.getElementById("my_modal_3")?.showModal();
+              }}
+            >
+              {chatButton}
+            </button>
+            <dialog
+              id="my_modal_3"
+              className="modal bg-slate-500/5 backdrop-blur-sm"
+            >
+              <div className="modal-box bg-slate-800/80 backdrop-blur-2xl">
+                <form method="dialog">
+                  {/* if there is a button in form, it will close the modal */}
+                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 hover:bg-base-300" onClick={() => {setChat([])}}>
+                    ✕
+                  </button>
+                </form>
+                <h3 className="font-bold text-lg">Chatbot</h3>
+                <div className="py-4">
+                  <div>
+                    {chat.map((item, index) => {
+                      return (
+                        <div
+                          key={index}
+                          className={
+                            "chat " + (item.user ? "chat-end" : "chat-start")
+                          }
+                        >
+                          <div className="chat-bubble"><Markdown>{item.message}</Markdown></div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      className="w-full p-2 mt-2 bg-base-200 rounded-lg"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                    />
+                    <button
+                      className="w-full p-2 mt-2 bg-base-200 rounded-lg"
+                      onClick={() => {
+                        fetch("http://192.168.117.135:8000/gemini", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({ question: message }),
+                        })
+                          .then((res) => res.json())
+                          .then((data: { response: string }) => {
+                            chat.push({ message: message, user: true });
+                            chat.push({ message: data.response, user: false });
+                            setMessage("");
+                          });
+                      }}
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </dialog>
+          </div>
         )}
       </div>
     </main>
