@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Orbitron, Raleway } from "next/font/google";
 import Markdown from "react-markdown";
+import remarkGfm from 'remark-gfm';
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -332,7 +333,7 @@ export default function Home() {
                             "chat " + (item.user ? "chat-end" : "chat-start")
                           }
                         >
-                          <div className="chat-bubble"><Markdown>{item.message}</Markdown></div>
+                          <div className="chat-bubble"><Markdown remarkPlugins={[remarkGfm]}>{item.message}</Markdown></div>
                         </div>
                       );
                     })}

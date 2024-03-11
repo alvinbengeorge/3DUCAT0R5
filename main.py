@@ -30,6 +30,4 @@ def get_gemini_response(question: str):
 async def gemini(question: Item):
     response = get_gemini_response(question.question)
     response.resolve()
-    for chunk in response:
-        print(chunk.text)
     return { "response": "\n".join([chunk.text for chunk in response])}
