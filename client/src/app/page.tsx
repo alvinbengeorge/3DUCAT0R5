@@ -5,6 +5,7 @@ import { Orbitron, Raleway } from "next/font/google";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { JitsiMeeting } from "@jitsi/react-sdk";
+import { Pie, PieChart } from "recharts";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -122,6 +123,24 @@ const data: CarouselProp[] = [
   },
 ];
 
+function convertToArrayOfItemsWithCount(stringArray: string[]) {
+  let result: any = {}
+  for (let item of stringArray) {
+    if (result[item]) {
+      result[item] += 1;
+    } else {
+      result[item] = 1;
+    }
+  }
+
+  let resultArray = [];
+  for (let key in result) {
+    resultArray.push({ name: key, value: result[key] });
+  }
+  return resultArray;
+
+}
+
 const CarouselItem = ({ title, description, faq, model }: CarouselProp) => {
   return (
     <div className="carousel-item w-full">
@@ -181,18 +200,46 @@ export default function Home() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [chatButton, setChatButton] = useState("Chat");
+  const [studentCount, setStudentCount] = useState(0);
   const [chat, setChat] = useState<{ message: string; user: boolean }[]>([
     { message: "Hello", user: true },
   ]);
+  const [activities, setActivities] = useState<string[]>([]);
+  const [timeSpent, setTimeSpent] = useState(0);
   useEffect(() => {
+    fetch("http://192.168.117.135:8000/visited", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ screen, username: "alvin" }),
+    }).then(res => res.json()).then(data => {
+      console.log(data);
+    })
     if (screen === "loggedOut") {
       setUsername("");
       setPassword("");
+    }
+    if (screen === "dashboard") {
+      fetch("http://192.168.117.135:8000/students")
+        .then((res) => res.json())
+        .then((data) => {
+          setStudentCount(data.students.length);
+          let activities = [];
+          for (let student of data.students) {
+            activities.push(...student.recently_viewed)
+          }
+          activities = activities.filter((item, index) => (item !== "loggedOut" && item !== "dashboard"))
+          setTimeSpent(activities.length * 5);
+          setActivities(activities);
+        });
     }
   }, [screen]);
   useEffect(() => {
     if (username === "alvin" && password === "alvin") {
       setScreen("ar");
+    } else if (username === "admin" && password === "admin") {
+      setScreen("dashboard");
     }
   }, [username, password]);
 
@@ -218,8 +265,8 @@ export default function Home() {
                   <summary>Options</summary>
                   <ul className="p-2 bg-base-100 rounded-t-none">
                     <li>
-                      <button onClick={() => setScreen("ar")}>
-                        Augmented Reality
+                      <button onClick={() => setScreen(username !== "admin" ? "ar": "dashboard")}>
+                        {username!== "admin" ? "Augmented Reality" : "Dashboard"}
                       </button>
                     </li>
                     <li>
@@ -297,24 +344,55 @@ export default function Home() {
           <div className="w-full h-full">
             <JitsiMeeting
               domain={"meet.jit.si"}
-              roomName="classroom"
-              configOverwrite={{
-                startWithAudioMuted: true,
-                disableModeratorIndicator: true,
-                startScreenSharing: true,
-                enableEmailInStats: false,
-              }}
-              interfaceConfigOverwrite={{
-                DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-              }}
-              onApiReady={(externalApi) => {
-                // here you can attach custom event listeners to the Jitsi Meet External API
-                // you can also store it locally to execute commands
-              }}
+              roomName="odfbh9suhf8h8"
               getIFrameRef={(iframeRef) => {
-                iframeRef.style.height = "400px";
+                iframeRef.style.height = "700px";
               }}
             />
+          </div>
+        )}
+        {screen === "dashboard" && (
+          <div className="grid place-items-center grid-cols-auto h-screen">
+            <div className="bg-[url('/background.webp')] bg-cover w-full h-full">
+              <div className=" bg-slate-100/30 backdrop-blur-xl h-full rounded-2xl p-0 lg:p-8">
+                <div className="p-2">
+                  <h1 className="text-2xl lg:text-6xl text-center p-4 bg-white/10 rounded-3xl">
+                    Dashboard
+                  </h1>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 place-items-stretch bg-sky-600 rounded-3xl shadow-2xl p-6 gap-2">
+                    <div className="text-center">
+                      <h1 className="text-2xl">No. of classes</h1>
+                      <p>1</p>
+                    </div>
+                    <div className="text-center">
+                      <h1 className="text-2xl">No. of students</h1>
+                      <p>{studentCount}</p>
+                    </div>
+                    <div className="text-center">
+                      <h1 className="text-2xl">Average Time Spent</h1>
+                      <p>{timeSpent}m</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1v place-items-center bg-white/30 backdrop-blur-xl rounded-3xl">
+                    <PieChart width={800} height={400}>
+                      <Pie
+                        dataKey="value"
+                        isAnimationActive={true}
+                        data={convertToArrayOfItemsWithCount(activities)}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={80}
+                        fill="#00aaff"
+                        label={true}
+                      />
+                    </PieChart>                   
+
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
         {screen !== "loggedOut" && (
