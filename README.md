@@ -2,6 +2,12 @@
     <img src="https://raw.githubusercontent.com/akarshghildyal/3DUCAT0R5/main/Logo.png" alt="Alternative Text" style="width:50%;">
 </div>
 
+
+
+https://github.com/akarshghildyal/3DUCAT0R5/assets/129004417/943b850b-e714-47f0-b987-a3e0a83debe2
+
+
+
 # Introduction
 ### Bridging the Gap Between Theory and Practice
 In the rapidly evolving world of technology education, a significant challenge persists: the gap between theoretical knowledge and practical application. Students often find themselves equipped with the principles but lacking the confidence and hands-on experience needed to navigate the complexities of real-world technology. This is especially true in the realm of hardware learning, where abstract concepts meet tangible applications. Traditional educational resources, while valuable, sometimes fall short in preparing students for the hands-on challenges they face.
@@ -37,6 +43,15 @@ This can be implemented in tech events, labs, technical clubs, and can be used b
 Teaching Professionals can use this to manage their students and check upon required assignments which are assigned by the faculty, the faculty can check upon most asked questions by the students
 ### Professional Organisations
 Professional organisation can use the software to technically train GETs to explain them their complex hardware and it can be used to remote assistance to for immediate repairing
+
+
+<br>
+
+https://github.com/akarshghildyal/3DUCAT0R5/assets/129004417/4d9f68fe-947c-402c-a997-26835373a970
+
+<br>
+
+
 # Tech Stack
 <p>
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688.svg?&style=for-the-badge&logo=fastapi&logoColor=white"/> 
