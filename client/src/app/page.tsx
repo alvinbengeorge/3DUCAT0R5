@@ -124,7 +124,7 @@ const data: CarouselProp[] = [
 ];
 
 function convertToArrayOfItemsWithCount(stringArray: string[]) {
-  let result: any = {}
+  let result: any = {};
   for (let item of stringArray) {
     if (result[item]) {
       result[item] += 1;
@@ -138,9 +138,7 @@ function convertToArrayOfItemsWithCount(stringArray: string[]) {
     resultArray.push({ name: key, value: result[key] });
   }
   return resultArray;
-
 }
-
 
 const CarouselItem = ({ title, description, faq, model }: CarouselProp) => {
   return (
@@ -202,35 +200,37 @@ export default function Home() {
   const [message, setMessage] = useState("");
   const [chatButton, setChatButton] = useState("Chat");
   const [studentCount, setStudentCount] = useState(0);
-  const [chat, setChat] = useState<{ message: string; user: boolean }[]>([
-    { message: "Hello", user: true },
-  ]);
+  const [chat, setChat] = useState<{ message: string; user: boolean }[]>([]);
   const [activities, setActivities] = useState<string[]>([]);
   const [timeSpent, setTimeSpent] = useState(0);
   useEffect(() => {
-    fetch("http://192.168.117.135:8000/visited", {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/visited`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ screen, username: "alvin" }),
-    }).then(res => res.json()).then(data => {
-      console.log(data);
     })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      });
     if (screen === "loggedOut") {
       setUsername("");
       setPassword("");
     }
     if (screen === "dashboard") {
-      fetch("http://192.168.117.135:8000/students")
+      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/students`)
         .then((res) => res.json())
         .then((data) => {
           setStudentCount(data.students.length);
           let activities = [];
           for (let student of data.students) {
-            activities.push(...student.recently_viewed)
+            activities.push(...student.recently_viewed);
           }
-          activities = activities.filter((item, index) => (item !== "loggedOut" && item !== "dashboard"))
+          activities = activities.filter(
+            (item, index) => item !== "loggedOut" && item !== "dashboard"
+          );
           setTimeSpent(activities.length * 5);
           setActivities(activities);
         });
@@ -266,8 +266,14 @@ export default function Home() {
                   <summary>Options</summary>
                   <ul className="p-2 bg-base-100 rounded-t-none">
                     <li>
-                      <button onClick={() => setScreen(username !== "admin" ? "ar": "dashboard")}>
-                        {username!== "admin" ? "Augmented Reality" : "Dashboard"}
+                      <button
+                        onClick={() =>
+                          setScreen(username !== "admin" ? "ar" : "dashboard")
+                        }
+                      >
+                        {username !== "admin"
+                          ? "Augmented Reality"
+                          : "Dashboard"}
                       </button>
                     </li>
                     <li>
@@ -326,7 +332,7 @@ export default function Home() {
           </div>
         )}
         {screen === "ar" && (
-          <div className="grid place-items-center h-screen">
+          <div className="grid place-items-center">
             <div className="h-full w-full">
               <div
                 className={
@@ -337,6 +343,26 @@ export default function Home() {
                 {data.map((item, index) => {
                   return <CarouselItem key={index} {...item} />;
                 })}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 p-2 w-full h-screen">
+              <div className="grid grid-cols-2 bg-[url('/ultrasonic-model.jpeg')] bg-cover p-4 h-full rounded-2xl">
+                <Image
+                  src={"/ultrasonic.jpeg"}
+                  alt="image"
+                  width={200}
+                  height={200}
+                  className="rounded-xl"
+                />
+              </div>
+              <div className="bg-[url('/proximity-model.jpeg')] bg-cover p-4 h-full rounded-2xl">
+                <Image
+                  src={"/not-ultra.jpeg"}
+                  alt="image"
+                  width={200}
+                  height={200}
+                  className="rounded-xl"
+                />
               </div>
             </div>
           </div>
@@ -390,8 +416,7 @@ export default function Home() {
                         nameKey={"name"}
                       />
                       <Tooltip />
-                    </PieChart>                   
-
+                    </PieChart>
                   </div>
                 </div>
               </div>
@@ -457,7 +482,7 @@ export default function Home() {
                     <button
                       className="w-fit mt-2 bg-white rounded-full"
                       onClick={() => {
-                        fetch("http://192.168.117.135:8000/gemini", {
+                        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/gemini`, {
                           method: "POST",
                           headers: {
                             "Content-Type": "application/json",
@@ -483,13 +508,16 @@ export default function Home() {
                     <button
                       className="w-fit mt-2 bg-white rounded-full"
                       onClick={() => {
-                        fetch("http://192.168.117.135:8000/wolfram", {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({ question: message }),
-                        })
+                        fetch(
+                          `${process.env.NEXT_PUBLIC_BACKEND_URL}/wolfram`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ question: message }),
+                          }
+                        )
                           .then((res) => res.json())
                           .then((data: { response: string }) => {
                             chat.push({ message: message, user: true });
