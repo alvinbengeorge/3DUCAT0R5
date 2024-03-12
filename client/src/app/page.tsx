@@ -5,7 +5,7 @@ import { Orbitron, Raleway } from "next/font/google";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { JitsiMeeting } from "@jitsi/react-sdk";
-import { Pie, PieChart } from "recharts";
+import { Pie, PieChart, Tooltip } from "recharts";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -140,6 +140,7 @@ function convertToArrayOfItemsWithCount(stringArray: string[]) {
   return resultArray;
 
 }
+
 
 const CarouselItem = ({ title, description, faq, model }: CarouselProp) => {
   return (
@@ -383,10 +384,12 @@ export default function Home() {
                         data={convertToArrayOfItemsWithCount(activities)}
                         cx="50%"
                         cy="50%"
-                        outerRadius={80}
+                        outerRadius={120}
                         fill="#00aaff"
                         label={true}
+                        nameKey={"name"}
                       />
+                      <Tooltip />
                     </PieChart>                   
 
                   </div>
