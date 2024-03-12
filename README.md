@@ -61,6 +61,25 @@ We used Gemini to implement our AI Chatbot and then we further specialized it to
 ### Making a website with multiple required sections:
 Making an interactive dashboard for the faculty side and the student side, integrating .glb files, providing individual qr codes in the website for AR feature, section for chatbot which helps clearing doubts and helps doing circuit design.
 
+# Installation & Running
+
+## Backend
+```sh
+git clone https://github.com/alvinbengeorge/3DUCAT0R5/
+cd 3DUCAT0R5
+pip3 install -r requirements.txt
+uvicorn main:app --host=0.0.0.0 --port=8000
+```
+
+## Frontend
+```sh
+# Install nodejs and npm before
+cd client
+npm install
+npm run build
+npm start
+```
+
 # Future Improvements
 - Improving UI
 - Improving the faculty side of the website
