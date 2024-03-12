@@ -3,7 +3,8 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Orbitron, Raleway } from "next/font/google";
 import Markdown from "react-markdown";
-import remarkGfm from 'remark-gfm';
+import remarkGfm from "remark-gfm";
+import { JitsiMeeting } from "@jitsi/react-sdk";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -222,8 +223,8 @@ export default function Home() {
                       </button>
                     </li>
                     <li>
-                      <button onClick={() => setScreen("wolf")}>
-                        WolframAlpha
+                      <button onClick={() => setScreen("class")}>
+                        ClassRoom
                       </button>
                     </li>
                     <li>
@@ -292,10 +293,28 @@ export default function Home() {
             </div>
           </div>
         )}
-        {screen === "wolf" && (
-          <div className="h-screen p-2 lg:p-4">
-            <h1 className="text-center text-2xl lg:text-6xl">WolframAlpha</h1>
-            <div></div>
+        {screen === "class" && (
+          <div className="w-full h-full">
+            <JitsiMeeting
+              domain={"meet.jit.si"}
+              roomName="classroom"
+              configOverwrite={{
+                startWithAudioMuted: true,
+                disableModeratorIndicator: true,
+                startScreenSharing: true,
+                enableEmailInStats: false,
+              }}
+              interfaceConfigOverwrite={{
+                DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+              }}
+              onApiReady={(externalApi) => {
+                // here you can attach custom event listeners to the Jitsi Meet External API
+                // you can also store it locally to execute commands
+              }}
+              getIFrameRef={(iframeRef) => {
+                iframeRef.style.height = "400px";
+              }}
+            />
           </div>
         )}
         {screen !== "loggedOut" && (
@@ -315,10 +334,15 @@ export default function Home() {
               id="my_modal_3"
               className="modal bg-slate-500/5 backdrop-blur-sm"
             >
-              <div className="modal-box bg-slate-800/80 backdrop-blur-2xl">
+              <div className="modal-box bg-slate-800/80 backdrop-blur-2xl w-full lg:w-3/4 border">
                 <form method="dialog">
                   {/* if there is a button in form, it will close the modal */}
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 hover:bg-base-300" onClick={() => {setChat([])}}>
+                  <button
+                    className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 hover:bg-base-300"
+                    onClick={() => {
+                      setChat([]);
+                    }}
+                  >
                     ✕
                   </button>
                 </form>
@@ -333,20 +357,24 @@ export default function Home() {
                             "chat " + (item.user ? "chat-end" : "chat-start")
                           }
                         >
-                          <div className="chat-bubble"><Markdown remarkPlugins={[remarkGfm]}>{item.message}</Markdown></div>
+                          <div className="chat-bubble overflow-auto">
+                            <Markdown remarkPlugins={[remarkGfm]}>
+                              {item.message}
+                            </Markdown>
+                          </div>
                         </div>
                       );
                     })}
                   </div>
-                  <div>
+                  <div className="flex flex-wrap gap-2">
                     <input
                       type="text"
-                      className="w-full p-2 mt-2 bg-base-200 rounded-lg"
+                      className="grow p-2 mt-2 bg-base-200 rounded-lg"
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                     />
                     <button
-                      className="w-full p-2 mt-2 bg-base-200 rounded-lg"
+                      className="w-fit mt-2 bg-white rounded-full"
                       onClick={() => {
                         fetch("http://192.168.117.135:8000/gemini", {
                           method: "POST",
@@ -363,7 +391,39 @@ export default function Home() {
                           });
                       }}
                     >
-                      Send
+                      <Image
+                        src={"/gemini.jpeg"}
+                        alt="gemini"
+                        width={50}
+                        height={50}
+                        className="rounded-full"
+                      />
+                    </button>
+                    <button
+                      className="w-fit mt-2 bg-white rounded-full"
+                      onClick={() => {
+                        fetch("http://192.168.117.135:8000/wolfram", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({ question: message }),
+                        })
+                          .then((res) => res.json())
+                          .then((data: { response: string }) => {
+                            chat.push({ message: message, user: true });
+                            chat.push({ message: data.response, user: false });
+                            setMessage("");
+                          });
+                      }}
+                    >
+                      <Image
+                        src={"/wolfram.svg"}
+                        alt="wolfram"
+                        width={50}
+                        height={50}
+                        className="rounded-full"
+                      />
                     </button>
                   </div>
                 </div>

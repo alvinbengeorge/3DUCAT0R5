@@ -4,6 +4,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import os
+import requests
 
 load_dotenv()
 
@@ -31,3 +32,8 @@ async def gemini(question: Item):
     response = get_gemini_response(question.question)
     response.resolve()
     return { "response": "\n".join([chunk.text for chunk in response])}
+
+@app.post("/wolfram")
+async def wolfram(question: Item):
+    response = requests.get(f"https://api.wolframalpha.com/v1/spoken?i={question.question}&appid={os.getenv('WOLFRAM')}")
+    return { "response": response.content.decode() }
